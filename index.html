@@ -9,100 +9,102 @@
 </head>
 <body>
 <aside>
-  <h1>Bot Photo Animator</h1>
-  <p class="tagline">Put animated bots on a photo and export a short video. Everything runs in your browser; the photo never leaves your computer. Bots are rendered with a port of <a href="https://github.com/jeremy-prt/bloub" target="_blank" rel="noreferrer">bloub</a>, measured from x.ai's bot video. Unofficial.</p>
-  <ol class="steps">
-    <li>Choose a photo</li>
-    <li>Add bots, drag them into place</li>
-    <li>Give each one animations, export</li>
-  </ol>
+  <header>
+    <h1>Bot Photo Animator</h1>
+    <p class="tagline">Animated bots on your photo, exported as a video. Runs in your browser; the photo never leaves your computer. Bots by a port of <a href="https://github.com/jeremy-prt/bloub" target="_blank" rel="noreferrer">bloub</a>. Unofficial.</p>
+  </header>
 
-  <details open>
-    <summary>Photo and canvas</summary>
+  <section>
+    <h2>Photo</h2>
     <input type="file" id="photo" accept="image/*">
-    <label><span>Canvas size</span><select id="preset">
+    <div class="field"><label for="preset">Canvas</label><select id="preset">
       <option value="auto">Same shape as the photo</option>
       <option value="1080x1080">Square 1080 × 1080</option>
-      <option value="1080x1350">Portrait 1080 × 1350 (4:5)</option>
-      <option value="1080x1440">Portrait 1080 × 1440 (3:4)</option>
-      <option value="1080x1920">Story 1080 × 1920 (9:16)</option>
-      <option value="1920x1080">Landscape 1920 × 1080</option>
-      <option value="custom">Custom</option>
-    </select></label>
-    <label><span>Custom W × H</span><input type="number" id="cw" value="1080" min="200" step="2"><input type="number" id="ch" value="1440" min="200" step="2"></label>
-    <label><span>Photo fit</span><select id="fit"><option value="cover">Fill the canvas (crop)</option><option value="contain">Show all of it (letterbox)</option></select></label>
-    <label><span>Crop focus ← →</span><input type="range" id="fx" min="0" max="100" value="50"><span class="value"></span></label>
-    <label><span>Crop focus ↑ ↓</span><input type="range" id="fy" min="0" max="100" value="50"><span class="value"></span></label>
-    <label><span>Background</span><input type="color" id="bg" value="#f7f7f7"></label>
-    <label><span>Video length (s)</span><input type="range" id="duration" min="2" max="30" step="0.5" value="10"><span class="value"></span></label>
-    <label><span>Frames per second</span><select id="fps"><option>24</option><option selected>30</option><option>60</option></select></label>
-  </details>
+      <option value="1080x1350">Portrait 4:5 (1080 × 1350)</option>
+      <option value="1080x1440">Portrait 3:4 (1080 × 1440)</option>
+      <option value="1080x1920">Story 9:16 (1080 × 1920)</option>
+      <option value="1920x1080">Landscape 16:9 (1920 × 1080)</option>
+      <option value="custom">Custom…</option>
+    </select></div>
+    <div class="field" id="customSize" hidden><label>Width × height</label><input type="number" id="cw" value="1080" min="200" step="2"><input type="number" id="ch" value="1440" min="200" step="2"></div>
+    <div class="field"><label for="fit">Photo fit</label><select id="fit"><option value="cover">Fill the canvas (crop)</option><option value="contain">Show all of it</option></select></div>
+    <div class="field" id="focusRow"><label>Crop focus</label><input type="range" id="fx" min="0" max="100" value="50" title="left ↔ right"><input type="range" id="fy" min="0" max="100" value="50" title="top ↕ bottom"></div>
+    <div class="field"><label for="duration">Length</label><input type="range" id="duration" min="2" max="30" step="0.5" value="10"><output for="duration" id="durationValue">10 s</output></div>
+    <div class="field"><label for="bg">Background</label><input type="color" id="bg" value="#f7f7f7"><label for="fps" class="inline">Frame rate</label><select id="fps"><option>24</option><option selected>30</option><option>60</option></select></div>
+  </section>
 
-  <details open>
-    <summary>Preview</summary>
-    <label><span>Time</span><input type="range" id="scrub" min="0" max="10" step="0.01" value="0"><span class="value" id="scrubValue">0.00 s</span></label>
-    <div class="row"><button class="secondary" id="play">Play</button><button class="secondary" id="pause">Pause</button></div>
-  </details>
+  <section>
+    <h2>Preview</h2>
+    <div class="field transport"><button class="secondary small" id="play" title="Play">▶</button><button class="secondary small" id="pause" title="Pause">❚❚</button><input type="range" id="scrub" min="0" max="10" step="0.01" value="0"><output id="scrubValue">0.00 s</output></div>
+  </section>
 
-  <details open>
-    <summary>Bots</summary>
-    <p class="hint">Click a shape to add a bot. It appears in the middle of the canvas; drag it where you want it.</p>
+  <section>
+    <h2>Bots</h2>
+    <p class="hint">Click a shape to add a bot, then drag it into place on the canvas.</p>
     <div class="picker shapes" id="shapePicker"></div>
     <ul class="bots" id="botList"></ul>
-    <p class="hint">Click a bot on the canvas to select it. <kbd>←↑→↓</kbd> nudge · <kbd>[</kbd> <kbd>]</kbd> rotate · <kbd>-</kbd> <kbd>=</kbd> resize · <kbd>Del</kbd> remove · <kbd>D</kbd> duplicate</p>
-  </details>
+  </section>
 
-  <details open>
-    <summary>Selected bot</summary>
-    <p id="noSelection" class="hint">No bot selected. Click one on the canvas or in the list above.</p>
+  <section id="selectionSection">
+    <h2>Selected bot</h2>
+    <p id="noSelection" class="hint">Click a bot on the canvas or in the list to edit it.</p>
     <div id="selection" hidden>
-      <label><span>Name</span><input type="text" id="botName"></label>
-      <label><span>Shape</span><select id="botShape"></select></label>
-      <label><span>Colour</span><input type="color" id="botColor"><input type="text" id="botColorHex" style="width:84px;flex:0 0 auto"></label>
-      <div class="swatches" id="swatches"></div>
-      <label><span>Eye colour</span><input type="color" id="botEyeColor"></label>
-      <label><span>Badge colour</span><input type="color" id="botBadgeColor"></label>
-      <p class="hint">The badge is the blue dot that pops up in the “notify” animation.</p>
-      <label><span>Position ← →</span><input type="range" id="botX" min="-0.3" max="1.3" step="0.001"><span class="value"></span></label>
-      <label><span>Position ↑ ↓</span><input type="range" id="botY" min="-0.3" max="1.3" step="0.001"><span class="value"></span></label>
-      <label><span>Size (% of width)</span><input type="range" id="botSize" min="4" max="150" step="0.5"><span class="value"></span></label>
-      <label><span>Rotation °</span><input type="range" id="botRotation" min="-180" max="180" step="1"><span class="value"></span></label>
-      <label><span>Visible</span><input type="checkbox" id="botVisible"></label>
-      <div class="row">
-        <button class="secondary small" id="botDuplicate">Duplicate</button>
-        <button class="secondary small" id="botForward">Bring forward</button>
-        <button class="secondary small" id="botBack">Send back</button>
-        <button class="danger small" id="botDelete">Delete</button>
+      <div class="field"><input type="text" id="botName" aria-label="Name"><select id="botShape" aria-label="Shape"></select></div>
+      <div class="field colours">
+        <label for="botColor">Body</label><input type="color" id="botColor" list="palette">
+        <label for="botEyeColor">Eyes</label><input type="color" id="botEyeColor" list="palette">
+        <label for="botBadgeColor" title="the dot that pops up in the Notify animation">Badge</label><input type="color" id="botBadgeColor" list="palette">
+      </div>
+      <div class="field"><label for="botSize">Size</label><input type="range" id="botSize" min="4" max="150" step="0.5"><output id="botSizeValue"></output></div>
+      <div class="field"><label for="botRotation">Rotation</label><input type="range" id="botRotation" min="-180" max="180" step="1"><output id="botRotationValue"></output></div>
+      <div class="field"><label>Position</label><input type="number" id="botX" step="0.01" title="left ↔ right, 0 to 1"><input type="number" id="botY" step="0.01" title="top ↕ bottom, 0 to 1"><label class="inline check"><input type="checkbox" id="botVisible"> visible</label></div>
+      <div class="field"><label for="botFace" title="the expression it wears whenever it is idle">Face</label><select id="botFace"></select><canvas id="facePreview" width="72" height="72" title="hover to see it move"></canvas></div>
+      <div class="field"><label for="botLook" title="where the eyes point">Looks</label><select id="botLook"><option value="auto">where each animation decides</option><option value="centre">at the middle of the photo</option><option value="custom">in a direction I set…</option></select></div>
+      <div class="field" id="customLook" hidden><label>Direction</label><input type="range" id="botLookYaw" min="-80" max="80" step="1" title="turn head left ↔ right"><input type="range" id="botLookPitch" min="-80" max="80" step="1" title="turn head down ↕ up"><input type="range" id="botLookMix" min="0" max="100" step="5" title="how firmly it holds that direction"></div>
+      <div class="field actions">
+        <button class="secondary small" id="botDuplicate" title="Duplicate (D)">Duplicate</button>
+        <button class="secondary small" id="botForward" title="Draw on top of the others">Forward</button>
+        <button class="secondary small" id="botBack" title="Draw behind the others">Back</button>
+        <button class="danger small" id="botDelete" title="Delete (⌫)">Delete</button>
       </div>
 
-      <p class="hint" style="margin-top:12px"><b>Face</b> — the expression the bot wears whenever it is idle. Hover a face to see it move.</p>
-      <div class="picker" id="facePicker"></div>
-
-      <p class="hint" style="margin-top:12px"><b>Where it looks</b> — normally each animation decides. Turn “hold gaze” up to make the bot look in the direction you set instead, for example at the person in the photo.</p>
-      <label><span>Turn head ← →</span><input type="range" id="botLookYaw" min="-80" max="80" step="1"><span class="value"></span></label>
-      <label><span>Turn head ↑ ↓</span><input type="range" id="botLookPitch" min="-80" max="80" step="1"><span class="value"></span></label>
-      <label><span>Hold gaze</span><input type="range" id="botLookMix" min="0" max="100" step="5"><span class="value"></span></label>
-      <div class="row"><button class="secondary small" id="botLookCentre">Look at the middle of the photo</button><button class="secondary small" id="botLookReset">Let animations decide</button></div>
-
-      <p class="hint" style="margin-top:12px"><b>Animation timeline</b> — plays top to bottom; the last one holds until the video ends. Idle blocks can carry their own face.</p>
+      <h3>Timeline <small>plays top to bottom; the last block holds to the end</small></h3>
       <div class="timeline" id="timeline"></div>
       <p class="hint" id="timelineTotal"></p>
-      <p class="hint"><b>Add an animation</b> — click to append it. Hover to see it play.</p>
+      <h3>Add an animation <small>hover to preview, click to add</small></h3>
       <div class="picker" id="statePicker"></div>
     </div>
-  </details>
+  </section>
 
-  <details open>
-    <summary>Export</summary>
+  <section>
+    <h2>Export</h2>
     <button id="exportVideo" class="wide">Export video (MP4)</button>
-    <div class="row"><button class="secondary" id="exportPng">Save a still (PNG)</button><button class="secondary" id="saveProject">Save project</button><button class="secondary" id="loadProjectButton">Load project</button></div>
+    <div class="field actions"><button class="secondary small" id="exportPng">Save a still</button><button class="secondary small" id="saveProject">Save project</button><button class="secondary small" id="loadProjectButton">Load project</button></div>
     <input type="file" id="loadProject" accept="application/json" hidden>
-    <div class="status" id="status"></div>
-    <p class="hint">Video export needs Chrome (it uses the browser's own H.264 encoder) and loads a small MP4 muxer from a CDN the first time. Your work autosaves in this browser; “Save project” writes a file that includes the photo.</p>
-  </details>
+    <p class="status" id="status"></p>
+    <p class="hint">Video export needs Chrome. Your work autosaves in this browser; a saved project file includes the photo.</p>
+  </section>
+
+  <p class="hint keys"><kbd>←↑→↓</kbd> nudge · <kbd>[</kbd> <kbd>]</kbd> rotate · <kbd>-</kbd> <kbd>=</kbd> resize · <kbd>⌫</kbd> delete · <kbd>D</kbd> duplicate</p>
+  <datalist id="palette"></datalist>
 </aside>
 
-<main><canvas id="stage" width="1080" height="1440"></canvas></main>
+<main>
+  <canvas id="stage" width="1080" height="1440"></canvas>
+  <footer class="credit">
+    <button type="button" id="showTutorial" class="link">tutorial</button>
+    <a href="https://x.com/dava_star" target="_blank" rel="noreferrer">made by <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>dava_star</a>
+  </footer>
+</main>
+
+<div id="tutorial" hidden>
+  <div class="spot"></div>
+  <div class="card">
+    <p class="step"></p>
+    <p class="text"></p>
+    <div class="buttons"><button type="button" class="secondary small" id="tutorialSkip">Skip tutorial</button><button type="button" class="small" id="tutorialNext">Next</button></div>
+  </div>
+</div>
 
 <script src="bloub-engine.js"></script>
 <script src="editor.js"></script>
