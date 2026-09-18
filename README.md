@@ -1,75 +1,54 @@
-# Grok Bot kit
+# Bot Photo Animator
 
-**Use the editor in your browser: https://davidstor.github.io/grok-bot-editor/** (Chrome recommended; Export MP4 uses
-Chrome's built-in video encoder. Your photo never leaves your computer.)
+**Try it: https://davidstor.github.io/grok-bot-editor/**
 
-Unofficial fan tool. The bot engine is a port of [bloub](https://github.com/jeremy-prt/bloub) by Jérémy Perret (MIT),
-whose shapes, eyes, states and timings were measured off x.ai's bot video. Not affiliated with x.ai.
+Put animated bots on a photo and export a short video, for example a LinkedIn post about the tools you use.
+Everything runs in the browser: the photo never leaves your computer.
 
-Assets for posts about Grok Bot (xAI). Nothing here is an official download; the shapes were traced
-from the inline SVG marks on https://x.ai/bot and the colours are the ones that page uses.
+![The editor with four bots over a photo](https://davidstor.github.io/grok-bot-editor/docs/screenshot.png)
 
-## What's inside
+## How to use it
 
-- `frame-template.html` — the look from Grok's Starship post (Sept 15, 2026). Your photo fills the frame, a crowd
-  of bots sits around the edges with white capsule eyes that glance around and look at you. The clip opens buried
-  in the black bot's eyes, zooms out, holds for 5 s (adjustable), zooms back in and lands on the exact opening
-  frame, so it loops seamlessly. **Export MP4** renders it frame-exact at 30 fps (Chrome, needs internet once for
-  the muxer). Pick your photo, click Export.
-- `serve.py` — optional local server (`python3 serve.py`, then http://localhost:8765). Only needed if you want to
-  script the page; double-clicking the HTML works on its own.
-- `editor.html` (also served as `index.html`) — the editor, now built on `bloub-engine.js`, a plain-JS port of
-  [bloub](https://github.com/jeremy-prt/bloub) (MIT, Jérémy Perret). That means the bots are bloub's: 8 customiser
-  shapes plus the 3 silhouettes measured off the x.ai video, eyes projected on a sphere with the measured head
-  pose, 14 measured states (idle, thinking, wink, wide, alert, notify, exclaim, sleep, egg, hexagon, play, orbit,
-  burst, comet) and 16 rest faces (neutral, attentive, surprised, excited, happy, laughing, angry, sad, scared,
-  suspicious, confused, curious, proud, shy, unimpressed, sleepy). Spawn, drag, resize, rotate, recolour, give
-  each bot a timeline (idle blocks can carry a face), point its gaze, export a frame-exact MP4, save/load projects.
-- `bloub-engine.js` — the engine port on its own, if you want to use it elsewhere. `Bloub.sampleTimeline(blocks, t, opts)`
-  returns a frame; `Bloub.drawFrame(ctx, frame, colours)` paints it on a canvas.
-- `trio-template.html` — three bots over your full photo, each running a state timeline (idle, sleep, wink, wide,
-  surprised, thinking, notification). Positions, sizes, colours and the timeline are one JSON block in the page;
-  scrub to preview any second, Export MP4 for a frame-exact render.
-- `orbit-template.html` — the Galaxy-stream look: dark background, bots circling your photo. Open in Chrome. Pick your photo, tweak the orbit, click **Record video**.
-  Saves .mp4 where the browser supports it (Chrome on macOS does), otherwise .webm (LinkedIn accepts both).
-  Or just screen-record the canvas with ⌘⇧5.
-- `svg/` — 81 static bots: 3 official-traced head shapes × 9 official colours × 3 eye styles
-  (`dark`, `white`, `cutout`). Drop into Canva, Figma, Keynote, CapCut, etc.
-- `bot-paths.json` / `bot-paths.js` — the raw path data (viewBox `-15 -15 259 259`) if you want to build your own.
+1. **Choose a photo.** The canvas takes the photo's shape by default; pick a preset (square, 4:5, 9:16 …) if you need one.
+2. **Add bots.** Click a shape. Drag the bot into place on the canvas, or use the sliders. Pick a colour, a size, a rotation.
+3. **Animate.** Each bot has a timeline of animations that play one after the other. Click an animation in the picker
+   to append it, hover to preview it. Idle blocks wear the bot's face; choose one from the face picker.
+4. **Export.** "Export video" renders every frame and saves an MP4 (Chrome). "Save project" keeps everything,
+   photo included, in a file you can load again later.
 
-Shapes: `blob` (the main mark), `triangle`, `gem` (rounded diamond). The template also offers hexagon,
-squircle, droplet and capsule; those four are approximations of shapes seen in the Galaxy stream, not traced.
+The bot's gaze normally follows the animation. If you want it to look at the person in the photo, click
+"Look at the middle of the photo" (or set the head-turn sliders and raise "hold gaze").
 
-Light-theme colours (sampled from the Starship post video): purple #9159FE, yellow #FF9800, blue #1084FE,
-black #000000, teal #00BCA6, orange #FF6700, background #F7F7F7.
+## What's in the repo
 
-Dark-theme colours (from x.ai/bot): teal #54B9A6, purple #885CF5, indigo #6464EF, blue #3C82F6, green #5BC67A,
-yellow #F19D38, orange #ED712E, red #EA4045, pink #EB4699.
+| File | What it is |
+|---|---|
+| `index.html` | The page. |
+| `editor.css` | Its styles. |
+| `editor.js` | The editor: photo, canvas, bot list, controls, timeline, MP4 export, project save/load. |
+| `bloub-engine.js` | The bot engine: a plain-JavaScript port of [bloub](https://github.com/jeremy-prt/bloub), plus a canvas renderer and a timeline sampler. |
 
-## Trademark note
+No build step, no dependencies. Open `index.html` in Chrome, or serve the folder with `python3 -m http.server`.
+Video export loads one library at run time, [mp4-muxer](https://github.com/Vanilagy/mp4-muxer), from jsDelivr.
 
-xAI's brand guidelines (https://x.ai/legal/brand-guidelines) say their marks may be used only to refer to
-xAI/Grok accurately, not to imply endorsement or as part of your own branding. A personal post saying
-"I've been using Grok Bot" with the bots as decoration is the kind of referential use that's normally fine;
-don't put them in a logo, product name or anything that looks like an xAI partnership. Official logo pack
-(the Grok/xAI wordmarks, not the bots): https://data.x.ai/logos/SpaceXAI_Grok_Assets.zip
+## Where the bots come from
 
-## What other creators are using
+The shapes, the eyes, the 14 animations, the 16 faces and all their timings are **bloub's**: Jérémy Perret cut
+x.ai's bot video into frames and measured everything (silhouettes by ray casting, eyes by capsule fitting).
+`bloub-engine.js` translates `src/bot/*.ts` from that project to browser JavaScript, with two additions of its
+own: a Canvas 2D renderer and `Bloub.sampleTimeline(blocks, t, options)`, which plays a list of
+`[state, seconds, face?]` blocks and returns the frame at time `t`. bloub's per-shape eye-offset table was not
+ported, so eyes on the triangle and droplet sit slightly differently than in bloub itself.
 
-- xAI's own designer (John Bai, "Designing Grok Bot with Grok Bot") animates the real production spec file in a
-  localhost playground built by a Grok Bot named Motion God, plus Figma for static work. Not public.
-- bloub (MIT) — https://bloub.vercel.app — free, no login. The editor above is built on a port of its engine. 8 shapes, 16 expressions, 14 animation states measured
-  frame by frame from xAI's video; exports SVG/PNG/GIF/MP4. Source: https://github.com/jeremy-prt/bloub
-- blooby — https://blooby-editor.vercel.app (needs an account) — multi-character scenes, gaze/look tool, Lottie,
-  dotLottie state machines, GIF/MP4. Source (MIT): https://github.com/divyanshu-patil/blooby
-- Grok_bot studio (MIT) — https://github.com/Eyadkelleh/Grok_bot — bloub clone, PNG/GIF/MP4.
-- agent-robot-avatar (CX-ArtLab) — https://github.com/CX-ArtLab/agent-robot-avatar — blink, pointer-following, jelly drag.
-- cartoon-eyes (React) — https://github.com/tmrk/cartoon-eyes — eyes that blink, wander or follow the cursor.
-- Dmitry Lepisov's interactive 3D robot was made in Spline + Omma Studio.
-- forbotsonly measured the official eye geometry: slanted stadiums, about 6.5×15 at 24° tilt, knocked out of the body.
+Using the engine on its own:
 
-## Other tools worth knowing
+```js
+const frame = Bloub.sampleTimeline([['idle', 2], ['wink', 2]], 3.0, { shape: 'cloud', expression: 'happy' });
+ctx.translate(x, y); ctx.scale(pixelRadius / Bloub.RAYON, pixelRadius / Bloub.RAYON);
+Bloub.drawFrame(ctx, frame, { bodyColor: '#f08a24', eyeColor: '#fff', paper: '#fff' });
+```
 
-- bloub (MIT) — https://bloub.vercel.app — 8 shapes, 16 expressions, 14 animation states, exports SVG/PNG/GIF/MP4.
-  Source: https://github.com/jeremy-prt/bloub
-- Grok_bot studio (MIT) — https://github.com/Eyadkelleh/Grok_bot — bloub-parity, exports PNG/GIF/MP4.
+## Licence
+
+MIT, see [LICENSE](LICENSE). `bloub-engine.js` carries bloub's MIT notice. This is an unofficial fan tool: it is
+not affiliated with, endorsed by or connected to x.ai, and "Grok" and "x.ai" belong to their owners.
